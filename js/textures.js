@@ -107,6 +107,30 @@ const Tex = (() => {
       for (let i = 0; i < 10; i++) g.fillRect(Math.random()*s, Math.random()*s, 8 + Math.random()*14, 1);
     }),
     rock: () => make(64, (g, s) => { noiseFill(g, s, [74, 70, 64], 24, 5); }),
+    barrel: () => make(64, (g, s) => {
+      noiseFill(g, s, [78, 88, 70], 16);
+      g.fillStyle = 'rgba(0,0,0,.35)';
+      g.fillRect(0, 10, s, 4); g.fillRect(0, 30, s, 4); g.fillRect(0, 50, s, 4);
+      g.fillStyle = 'rgba(150,80,30,.4)';
+      for (let i = 0; i < 6; i++) g.fillRect(Math.random()*s, Math.random()*s, 3+Math.random()*5, 3+Math.random()*5);
+    }),
+    panel: () => make(64, (g, s) => {
+      noiseFill(g, s, [38, 42, 44], 8);
+      const cols = ['#5fd35f', '#ff8c1a', '#5fd35f', '#c84030', '#5fd35f'];
+      for (let y = 8; y < s - 8; y += 12)
+        for (let x = 8; x < s - 8; x += 12) {
+          g.fillStyle = Math.random() < 0.7 ? cols[(Math.random()*cols.length)|0] : '#222';
+          g.fillRect(x, y, 4, 4);
+        }
+      g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(0, 0, s, 3); g.fillRect(0, s-3, s, 3);
+    }),
+    helipad: () => make(64, (g, s) => {
+      noiseFill(g, s, [96, 98, 92], 14);
+      g.strokeStyle = '#c8b830'; g.lineWidth = 4;
+      g.beginPath(); g.arc(s/2, s/2, 24, 0, Math.PI*2); g.stroke();
+      g.fillStyle = '#c8b830'; g.font = 'bold 30px monospace';
+      g.fillText('H', s/2 - 9, s/2 + 11);
+    }),
   };
 
   function get(name) {

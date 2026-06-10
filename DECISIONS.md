@@ -44,6 +44,21 @@
 - **M1 ends at the crane elevator pad** (touch trigger) rather than a ride sequence —
   mission-end fade is capped at 1 s per spec, so an elevator cutscene would violate it.
 
+## Visual & content upgrade (post-release)
+- **Red enemy outlines** use back-face shells (scaled clones with `side: BackSide`) parented
+  to each body part so they follow walk/telegraph animations — no postprocessing needed in r128.
+- **Scout/Sniper/Riot** added on top of the original three: Scout punishes pure skip-running
+  (it chases), Sniper adds a visible-laser dodge mini-game at range, Riot's frontal block is
+  solved by the slide — every new type reinforces the movement-first design.
+- Sniper lasers are FX tracers re-emitted every 0.1 s during the 0.9 s telegraph — cheap and
+  readable through the M3 storm.
+- Riot frontal block is resolved in the hitscan (facing·shotDir < 0.2 → spark, no damage),
+  not a separate hitbox — headshots from behind still work.
+- Decor is data-only (`cyl` and `basic`-material flags in the level builder); solid only
+  where it doubles as cover (pillars, shelving). The M1 office cage initially re-created the
+  "geometry crowds the objective radius" bug class — caught by the campaign regression bot,
+  fixed by widening the cage and the interact radius.
+
 ## Speedrun systems
 - **Campaign timer starts on the first input of Mission 1**, not on load — menu/loading
   time is never part of a run.

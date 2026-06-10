@@ -104,6 +104,16 @@ function groomWalls(cx, cz, w, d, h, t, doors, out, yBase) {
 function container(x, z, yaw, tex, out) {
   out.push(gbox(x, 1.3, z, yaw ? 2.6 : 6.5, 2.6, yaw ? 6.5 : 2.6, tex || 'container'));
 }
+function lamp(x, z, h, out, color) {
+  out.push(gbox(x, h / 2, z, 0.25, h, 0.25, 'metal'));
+  out.push(gbox(x, h + 0.15, z, 0.7, 0.3, 0.7, 'metal'));
+  out.push(gbox(x, h - 0.06, z, 0.5, 0.14, 0.5, 'metal', { basic: color || 0xffe2a8, nosolid: true }));
+}
+function barrels(x, z, out) {
+  out.push(gbox(x, 0.55, z, 0.9, 1.1, 0.9, 'barrel', { cyl: true }));
+  out.push(gbox(x + 0.95, 0.55, z + 0.3, 0.9, 1.1, 0.9, 'barrel', { cyl: true }));
+  out.push(gbox(x + 0.4, 0.55, z - 0.75, 0.9, 1.1, 0.9, 'barrel', { cyl: true }));
+}
 
 function buildLevel(def, scene) {
   World.clear();
@@ -119,12 +129,16 @@ function buildLevel(def, scene) {
   const geo = def.geo();
   for (const g of geo) {
     let mat;
-    if (g.rep) {
+    if (g.basic != null) mat = new THREE.MeshBasicMaterial({ color: g.basic });
+    else if (g.rep) {
       const t = Tex.get(g.t).clone();
       t.needsUpdate = true; t.repeat.set(g.rep[0], g.rep[1]);
       mat = new THREE.MeshLambertMaterial({ map: t });
     } else mat = g.glow ? Tex.mat(g.t, { emissive: 0x553300 }) : Tex.mat(g.t);
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(g.s[0], g.s[1], g.s[2]), mat);
+    const shape = g.cyl
+      ? new THREE.CylinderGeometry(g.s[0] / 2, g.s[0] / 2, g.s[1], 8)
+      : new THREE.BoxGeometry(g.s[0], g.s[1], g.s[2]);
+    const mesh = new THREE.Mesh(shape, mat);
     mesh.position.set(g.p[0], g.p[1], g.p[2]);
     scene.add(mesh);
     let boxRef = null;
@@ -171,6 +185,19 @@ const M1 = {
     o.push(gbox(34, 0.25, -48, 18, 0.5, 18, 'metal', { rep: [4, 4] }));
     o.push(gbox(42, 6, -48, 2, 12, 2, 'metal')); o.push(gbox(34, 12.5, -48, 18, 1, 3, 'metal'));
     o.push(gbox(34, 0.9, -48, 6, 1.2, 6, 'hazard', { tag: 'm1lift' })); // elevator platform
+    // --- decor ---
+    lamp(-20, 45, 5, o); lamp(18, 30, 5, o); lamp(-22, -5, 5, o); lamp(20, -20, 5, o); lamp(28, -60, 5, o);
+    barrels(-22, 30, o); barrels(10, 6, o); barrels(-6, -36, o);
+    o.push(gbox(12, 0.12, 44, 2.2, 0.24, 2.2, 'crate')); o.push(gbox(-2, 0.12, 48, 2.2, 0.24, 2.2, 'crate')); // pallets
+    for (let x = -40; x <= 40; x += 16) o.push(gbox(x, 0.4, 70, 0.5, 0.8, 0.5, 'metal', { cyl: true })); // bollards
+    o.push(gbox(-8, 0.02, 36, 4, 0.03, 2.6, 'metal', { basic: 0x1a2530, nosolid: true })); // puddles
+    o.push(gbox(14, 0.02, 18, 5, 0.03, 3, 'metal', { basic: 0x1a2530, nosolid: true }));
+    o.push(gbox(-16, 0.02, -12, 3.5, 0.03, 2.2, 'metal', { basic: 0x1a2530, nosolid: true }));
+    o.push(gbox(-45, 2.5, 88, 50, 9, 12, 'metal', { basic: 0x0c1016, nosolid: true })); // distant ship
+    o.push(gbox(-17, 2, -42, 1.2, 4, 10, 'metal')); o.push(gbox(17, 2, -47, 1.2, 4, 9, 'metal')); // shelving
+    o.push(gbox(-2.6, 0.9, -50, 0.3, 1.8, 4, 'metal')); o.push(gbox(2.6, 0.9, -50, 0.3, 1.8, 4, 'metal')); // office cage
+    o.push(gbox(0, 0.9, -52.4, 5.5, 1.8, 0.3, 'metal'));
+    o.push(gbox(42, 12.8, -48, 0.35, 0.35, 0.35, 'metal', { basic: 0xff3020, nosolid: true })); // crane beacon
     return o;
   },
   enemies: [
@@ -201,7 +228,7 @@ const M1 = {
       checkpoint: true,
     },
     {
-      type: 'interact', pos: [0, 1, -50], r: 2.8, hold: 8, label: 'DOWNLOADING MANIFEST',
+      type: 'interact', pos: [0, 1, -50], r: 3.2, hold: 8, label: 'DOWNLOADING MANIFEST',
       text: 'Download the manifest [hold E]', defendedHint: true,
       onStart: { radio: [['OVERWATCH', 'Console\'s in the back office cage. The download will make noise — hold them off.']],
         spawnAt: 2, spawn: [
@@ -258,11 +285,30 @@ const M2 = {
     // arrival platform north — train boards here
     o.push(gbox(0, 0.6, -72, 60, 1.2, 6, 'concrete', { rep: [10, 1] }));
     o.push(gbox(20, 2.4, -76, 4, 3.6, 3, 'train', { tag: 'm2train' })); // engine appears on arrival
+    // --- decor ---
+    for (const z of [-40, 0, 40]) for (const x of [-38, 38]) { // catenary poles
+      o.push(gbox(x, 3.5, z, 0.4, 7, 0.4, 'metal'));
+      o.push(gbox(x + (x < 0 ? 3 : -3), 6.8, z, 6, 0.3, 0.3, 'metal', { nosolid: true }));
+    }
+    o.push(gbox(-14, 1.5, 30, 0.3, 3, 0.3, 'metal')); // signal mast
+    o.push(gbox(-14, 3.1, 29.8, 0.25, 0.25, 0.12, 'metal', { basic: 0xc83020, nosolid: true }));
+    o.push(gbox(-14, 2.7, 29.8, 0.25, 0.25, 0.12, 'metal', { basic: 0x40b840, nosolid: true }));
+    o.push(gbox(22, 1.5, -28, 0.3, 3, 0.3, 'metal'));
+    o.push(gbox(22, 3.1, -28.2, 0.25, 0.25, 0.12, 'metal', { basic: 0x40b840, nosolid: true }));
+    o.push(gbox(-20, 0.5, 12, 3, 1, 1.6, 'crate')); o.push(gbox(38, 0.5, 28, 3, 1, 1.6, 'crate')); // sleeper stacks
+    o.push(gbox(-30, 4, -66, 0.6, 8, 0.6, 'metal')); // floodlight tower at platform
+    o.push(gbox(-30, 8.2, -65.5, 1.4, 0.5, 0.5, 'metal', { basic: 0xfff0c0, nosolid: true }));
+    o.push(gbox(-56, 0.5, -33, 3, 1, 1.2, 'metal')); // depot desk
+    o.push(gbox(-58.6, 1.5, -30, 0.3, 2, 4, 'panel')); // depot control panel
+    barrels(-44, -26, o); barrels(40, 18, o);
+    lamp(-10, 46, 5, o); lamp(24, -2, 5, o); lamp(-40, 4, 5, o);
     return o;
   },
   enemies: [
     { type: 'grunt', pos: [-8, 0, 40], patrol: [[-8, 0, 40], [8, 0, 40]] },
+    { type: 'scout', pos: [8, 0, 48], patrol: [[8, 0, 48], [-6, 0, 52]] },
     { type: 'grunt', pos: [18, 0, 26], yaw: 0.6 },
+    { type: 'scout', pos: [-24, 0, 30], yaw: 1.2 },
     { type: 'grunt', pos: [-40, 0, 20], yaw: 1.2 },
     { type: 'heavy', pos: [0, 0, -40], yaw: 0 },
     { type: 'grunt', pos: [44, 0, 6], yaw: -1.4 },
@@ -298,9 +344,9 @@ const M2 = {
       text: 'Hold the signal tower',
       waves: [
         { at: 55, spawn: [{ type: 'grunt', pos: [-30, 0, 45], }, { type: 'grunt', pos: [30, 0, 45] }] },
-        { at: 42, spawn: [{ type: 'heavy', pos: [0, 0, 50] }, { type: 'grunt', pos: [-45, 0, 10] }] },
+        { at: 42, spawn: [{ type: 'heavy', pos: [0, 0, 50] }, { type: 'scout', pos: [-45, 0, 10] }] },
         { at: 28, spawn: [{ type: 'grunt', pos: [45, 0, -20] }, { type: 'grunt', pos: [-45, 0, -20] }] },
-        { at: 14, spawn: [{ type: 'heavy', pos: [20, 0, 45] }, { type: 'grunt', pos: [-20, 0, 45] }] },
+        { at: 14, spawn: [{ type: 'heavy', pos: [20, 0, 45] }, { type: 'scout', pos: [-20, 0, 45] }] },
       ],
       onComplete: { radio: [['OVERWATCH', 'Train\'s braking at the north platform — board it NOW.']], moveTag: ['m2train', 0, 0, 0] },
       checkpoint: true,

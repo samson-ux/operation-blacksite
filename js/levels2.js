@@ -38,19 +38,33 @@ const M3 = {
     groomWalls(0, -54, 6, 16, 3.6, 'metal', [{ side: 's', off: 0, w: 2.2, h: 2.8 }], o, 2);
     o.push(gbox(0, 5.6, -54, 6.6, 0.5, 17, 'metal'));
     o.push(gbox(0, 2.7, -58, 2.5, 1.4, 1.5, 'objective', { glow: true })); // engine console
+    // --- decor ---
+    o.push(gbox(-2.2, 2.4, 80, 1.2, 0.8, 3, 'crate')); // boxcar benches
+    o.push(gbox(2.2, 2.4, 40, 1.2, 0.8, 3, 'crate'));
+    o.push(gbox(-2.2, 2.4, -32, 1.2, 0.8, 3, 'crate'));
+    o.push(gbox(-1.8, 3.3, 64, 2.4, 2.6, 5, 'container')); // half-width container, lane stays open
+    o.push(gbox(0, 6.2, 78, 0.12, 1.4, 0.12, 'metal', { nosolid: true })); // roof antennas
+    o.push(gbox(0.8, 6.1, 6, 0.12, 1.2, 0.12, 'metal', { nosolid: true }));
+    for (const z of [89.2, 70.8, 67.2, 49.2, 31.2, 17.2, -4.8, -22.8]) // hazard stripes at car ends
+      o.push(gbox(0, 2.06, z, 6, 0.05, 0.45, 'hazard', { nosolid: true }));
+    o.push(gbox(0, 7, -59, 1, 2.6, 1, 'metal', { cyl: true, nosolid: true })); // smokestack
+    o.push(gbox(0, 3.5, -62.8, 0.6, 0.6, 0.2, 'metal', { basic: 0xfff2c0, nosolid: true })); // headlight
     return o;
   },
   enemies: [
     { type: 'grunt', pos: [1.5, 2, 80], yaw: 3.1 },
     { type: 'grunt', pos: [-1.5, 2, 74], yaw: 3.1 },
     { type: 'elite', pos: [0, 2, 60], yaw: 3.1 },
+    { type: 'scout', pos: [1.5, 2, 50], yaw: 3.1 },
     { type: 'grunt', pos: [1.5, 2, 44], yaw: 3.1 },
     { type: 'heavy', pos: [0, 2, 38], yaw: 3.1 },
+    { type: 'scout', pos: [-1.5, 2, 16], yaw: 3.1 },
     { type: 'elite', pos: [-1.5, 2, 8], yaw: 3.1 },
     { type: 'grunt', pos: [1.5, 2, 2], yaw: 3.1 },
+    { type: 'sniper', pos: [0, 5.6, -30], yaw: 3.1 }, // boxcar roof — watch for the laser
     { type: 'elite', pos: [0, 2, -14], yaw: 3.1 },
     { type: 'heavy', pos: [0, 2, -28], yaw: 3.1 },
-    { type: 'grunt', pos: [-1.5, 2, -34], yaw: 3.1 },
+    { type: 'riot', pos: [0, 2, -44], yaw: 3.1 },     // guards the engine door
   ],
   mg: { pos: [0, 2.8, 27], yaw: Math.PI }, // mounted gun, faces rear — covers the push from car 3 spawns; skippable
   objectives: [
@@ -61,7 +75,7 @@ const M3 = {
         ['ASH', 'Say again, Overwatch? You\'re breaking up.'],
       ] },
       onComplete: { spawn: [
-        { type: 'grunt', pos: [-1.5, 2, 40], yaw: 0 }, { type: 'grunt', pos: [1.5, 2, 44], yaw: 0 },
+        { type: 'grunt', pos: [-1.5, 2, 40], yaw: 0 }, { type: 'scout', pos: [1.5, 2, 44], yaw: 0 },
         { type: 'elite', pos: [0, 2, 36], yaw: 0 },
       ], radio: [['OVERWATCH', 'zzzkt — behind y— zzkt — mounted gun on the flatbed if you need it.']] },
       checkpoint: true,
@@ -129,8 +143,26 @@ const M4 = {
     o.push(gbox(-12, 1.5, -58, 5, 3, 5, 'metal')); o.push(gbox(12, 1.5, -70, 5, 3, 5, 'metal'));
     o.push(gbox(0, 1.5, -76, 6, 3, 4, 'metal'));
     o.push(gbox(0, 1, -80, 2, 2, 2, 'objective', { glow: true, tag: 'blacksite' })); // the package
-    // helipad back at top (escape target) — small pad beside ring1 entry
-    o.push(gbox(0, 23.5, 92, 14, 1, 10, 'hazard', { rep: [3, 2] }));
+    // helipad back at top (escape target)
+    o.push(gbox(0, 23.5, 92, 14, 1, 10, 'helipad'));
+    // --- decor ---
+    o.push(gbox(-25.6, 5.5, -22, 0.5, 0.5, 30, 'rust', { nosolid: true })); // hub wall pipes
+    o.push(gbox(25.6, 5.5, -22, 0.5, 0.5, 30, 'rust', { nosolid: true }));
+    o.push(gbox(0, 17.5, 28, 43, 0.4, 0.4, 'rust', { nosolid: true }));     // ring2 pipe run
+    o.push(gbox(-16, 14.5, 24, 1.2, 5, 1.2, 'concrete')); // ring2 pillars (cover)
+    o.push(gbox(16, 14.5, 34, 1.2, 5, 1.2, 'concrete'));
+    o.push(gbox(-18, 2.5, -14, 1.4, 5, 1.4, 'concrete')); // hub pillars
+    o.push(gbox(18, 2.5, -30, 1.4, 5, 1.4, 'concrete'));
+    o.push(gbox(33, 1.5, -27.6, 6, 3, 0.8, 'panel'));   // server racks, switch rooms
+    o.push(gbox(-33, 1.5, -27.6, 6, 3, 0.8, 'panel'));
+    o.push(gbox(33, 1.5, -16.4, 6, 3, 0.8, 'panel'));
+    o.push(gbox(-33, 1.5, -16.4, 6, 3, 0.8, 'panel'));
+    // wall lights: warm in rings, red along the escape line
+    for (const L of [[-17.5, 29, 74], [17.5, 29, 74], [-21.5, 17, 28], [21.5, 17, 28], [-25.5, 5, -22], [25.5, 5, -22]])
+      o.push(gbox(L[0], L[1], L[2], 0.5, 0.3, 0.5, 'metal', { basic: 0xffe2a8, nosolid: true }));
+    for (const L of [[11.2, 25, 52], [5, 14.8, 9.5], [-6.8, 13, 9], [-13.2, 2.8, -3]])
+      o.push(gbox(L[0], L[1], L[2], 0.3, 0.3, 0.3, 'metal', { basic: 0xc82818, nosolid: true }));
+    o.push(gbox(0, 1.2, -64, 2.6, 2.4, 2.6, 'panel')); // arena center console block
     return o;
   },
   enemies: [
@@ -138,7 +170,9 @@ const M4 = {
     { type: 'elite', pos: [0, 24, 62], yaw: 3.1 },
     { type: 'grunt', pos: [-10, 12, 26], yaw: 3.1 }, { type: 'heavy', pos: [0, 12, 20], yaw: 3.1 },
     { type: 'elite', pos: [14, 12, 30], yaw: 3.1 },
+    { type: 'sniper', pos: [-16, 12, 15], yaw: 3.1 }, { type: 'sniper', pos: [16, 12, 14], yaw: 3.1 },
     { type: 'grunt', pos: [-12, 0, -14], yaw: 0 }, { type: 'grunt', pos: [12, 0, -16], yaw: 0 },
+    { type: 'riot', pos: [6, 0, -28], yaw: 0 }, { type: 'riot', pos: [-6, 0, -28], yaw: 0 },
     { type: 'elite', pos: [0, 0, -30], yaw: 0 },
     { type: 'heavy', pos: [33, 0, -26], yaw: 0 }, { type: 'elite', pos: [-33, 0, -26], yaw: 0 },
   ],
@@ -167,8 +201,8 @@ const M4 = {
       type: 'boss', text: 'Eliminate Commander Roth',
       bossSpawn: { type: 'boss', pos: [0, 0, -72], yaw: 0 },
       adds: [
-        [{ type: 'grunt', pos: [-16, 0, -50] }, { type: 'grunt', pos: [16, 0, -50] }],
-        [{ type: 'elite', pos: [-16, 0, -50] }, { type: 'elite', pos: [16, 0, -50] }],
+        [{ type: 'grunt', pos: [-16, 0, -50] }, { type: 'grunt', pos: [16, 0, -50] }, { type: 'scout', pos: [0, 0, -48] }],
+        [{ type: 'elite', pos: [-16, 0, -50] }, { type: 'elite', pos: [16, 0, -50] }, { type: 'scout', pos: [0, 0, -48] }],
       ],
       onStart: { radio: [
         ['ROTH', 'Sergeant Calloway. Your own agency priced you at four million. I\'d have paid ten.'],
@@ -191,8 +225,8 @@ const M4 = {
       type: 'escape', time: 90, pos: [0, 24.5, 92], r: 5,
       text: 'ESCAPE — get to the helipad',
       onStart: { spawn: [
-        { type: 'grunt', pos: [-8, 0, -20], yaw: 0 }, { type: 'grunt', pos: [8, 0, -20], yaw: 0 },
-        { type: 'elite', pos: [-10, 12, 26], yaw: 0 }, { type: 'grunt', pos: [10, 12, 30], yaw: 0 },
+        { type: 'grunt', pos: [-8, 0, -20], yaw: 0 }, { type: 'scout', pos: [8, 0, -20], yaw: 0 },
+        { type: 'elite', pos: [-10, 12, 26], yaw: 0 }, { type: 'scout', pos: [10, 12, 30], yaw: 0 },
         { type: 'grunt', pos: [0, 24, 70], yaw: 0 },
       ] },
       onComplete: { radio: [

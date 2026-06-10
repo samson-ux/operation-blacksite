@@ -46,6 +46,11 @@ your browser's localStorage.
 3. **Black Rain** — fight car-by-car up a storm-lashed train to the engine. (target 6:00)
 4. **Vault** — descend the bunker, cut power in two switch rooms (either order), beat Commander Roth, grab BLACKSITE, and sprint the 90-second escape. (target 7:00)
 
+**Know your enemy** (all outlined in red): Grunts (rifles), Heavies (armored, shotgun),
+Elites (accurate, strafing), Scouts (fast rushers), Snipers (red aim laser = your dodge
+window), and Riots (frontal shield plate — flank or get behind them). Every enemy
+telegraphs by raising its weapon before firing.
+
 Deaths respawn you at the last checkpoint **with the timer still running** — deaths cost
 time, never the run. Finishing the campaign unlocks **Level Select** for individual-level
 practice. Final rank: **S** < 18:00 · A < 21:00 · B < 25:00 · C < 30:00.

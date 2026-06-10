@@ -26,8 +26,13 @@ You can tap a console, fight, and come back.
 ### General
 - Radio dialogue never blocks anything. Press F to skip lines (audio only — no time save,
   it's for your sanity on grinds).
-- Enemies telegraph 0.4 s (weapon raise) before firing. You can sprint past almost every
-  fight; only scripted defends and the boss are mandatory kills.
+- Enemies telegraph (weapon raise) before firing — 0.4 s for most, 0.3 s for Scouts,
+  0.9 s for Snipers (with a red aim laser: when you see the line, change lanes). You can
+  sprint past almost every fight; only scripted defends and the boss are mandatory kills.
+- **Scouts** chase you — they're the one enemy that punishes pure skipping. One shotgun
+  blast or two pistol headshots; kill them on the move, don't stop.
+- **Riots** block everything from the front (watch the spark). Never duel one: slide past
+  and put two rifle taps in his back, or just keep running — he's slow.
 - HP regenerates after 4 s out of combat. Deaths respawn at the checkpoint with the timer
   running — a death is usually a 10–30 s loss, never a reset.
 

@@ -19,21 +19,48 @@ const Player = {
 
   init(camera, scene) {
     this.camera = camera;
-    // viewmodel gun (attached to camera)
-    const vm = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.09, 0.42), Tex.flat(0x2e3328));
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.035, 0.2), Tex.flat(0x1c1f18));
-    barrel.position.set(0, 0.02, -0.3);
-    const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 0.06), Tex.flat(0x3a3528));
-    grip.position.set(0, -0.09, 0.08);
-    const flash = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.09),
-      new THREE.MeshBasicMaterial({ color: 0xffc060, transparent: true, opacity: 0 }));
-    flash.position.set(0, 0.02, -0.44);
-    vm.add(body, barrel, grip, flash);
-    vm.position.set(0.22, -0.2, -0.45);
-    camera.add(vm);
-    this.viewmodel = vm;
-    this.vmParts = { body, barrel, flash };
+    // three distinct viewmodels under one bob/kick container
+    const root = new THREE.Group();
+    const B = (parent, color, w, h, d, x, y, z) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), Tex.flat(color));
+      m.position.set(x, y, z); parent.add(m); return m;
+    };
+    const mkFlash = (parent, z, size) => {
+      const f = new THREE.Mesh(new THREE.BoxGeometry(size, size, size),
+        new THREE.MeshBasicMaterial({ color: 0xffc060, transparent: true, opacity: 0 }));
+      f.position.set(0, 0.02, z); parent.add(f); return f;
+    };
+    // AR-7 rifle: long receiver, mag, front sight, stock
+    const rifle = new THREE.Group();
+    B(rifle, 0x2e3328, 0.07, 0.09, 0.46, 0, 0, -0.04);
+    B(rifle, 0x1c1f18, 0.035, 0.035, 0.24, 0, 0.02, -0.37);
+    B(rifle, 0x23271e, 0.05, 0.16, 0.07, 0, -0.11, -0.1);      // magazine
+    B(rifle, 0x1c1f18, 0.015, 0.05, 0.02, 0, 0.07, -0.42);     // front sight
+    B(rifle, 0x3a3528, 0.06, 0.08, 0.14, 0, -0.02, 0.24);      // stock
+    B(rifle, 0x3a3528, 0.05, 0.12, 0.06, 0, -0.09, 0.08);      // grip
+    const rifleFlash = mkFlash(rifle, -0.52, 0.09);
+    // M90 pump: chunky brown furniture, wide barrel, pump foregrip
+    const shotgun = new THREE.Group();
+    B(shotgun, 0x5c4326, 0.085, 0.1, 0.4, 0, 0, 0.02);
+    B(shotgun, 0x22251f, 0.05, 0.05, 0.34, 0, 0.025, -0.32);   // barrel
+    B(shotgun, 0x1c1f18, 0.045, 0.045, 0.34, 0, -0.035, -0.32);// tube mag
+    B(shotgun, 0x6b4f2e, 0.075, 0.07, 0.15, 0, -0.035, -0.3);  // pump foregrip
+    B(shotgun, 0x5c4326, 0.06, 0.1, 0.16, 0, -0.03, 0.26);     // stock
+    const shotgunFlash = mkFlash(shotgun, -0.54, 0.12);
+    // Ghost-9 SD: compact slide + fat suppressor
+    const pistol = new THREE.Group();
+    B(pistol, 0x2a2d28, 0.05, 0.07, 0.2, 0, 0.02, -0.02);      // slide
+    B(pistol, 0x16181a, 0.055, 0.055, 0.2, 0, 0.025, -0.21);   // suppressor
+    B(pistol, 0x3a3528, 0.045, 0.13, 0.06, 0, -0.07, 0.05);    // grip
+    pistol.position.z = 0.08; // carried closer
+    const pistolFlash = mkFlash(pistol, -0.33, 0.06);
+    root.add(rifle, shotgun, pistol);
+    root.position.set(0.22, -0.2, -0.45);
+    camera.add(root);
+    this.viewmodel = root;
+    this.vms = [rifle, shotgun, pistol];
+    this.vmFlashes = [rifleFlash, shotgunFlash, pistolFlash];
+    this.vmParts = { flash: rifleFlash };
   },
 
   reset(pos, yaw, keepLoadout) {
@@ -82,6 +109,7 @@ const Player = {
     this.reloading = 0;            // reload cancel — core speedrun tech
     this.swapCooldown = WEAPONS[i].swap;
     this.pumpTime = 0;
+    this.vmParts.flash = this.vmFlashes[i];
     AudioSys.play('swap');
     UI.updateAmmo();
   },
@@ -179,7 +207,10 @@ const Player = {
     const bob = this.onGround ? Math.sin(this.stepT) * 0.008 * Math.min(1, speed / 4) : 0;
     this.viewmodel.position.set(0.22, -0.2 + bob + (this.sliding ? -0.06 : 0), -0.45 + this.kick);
     this.viewmodel.rotation.x = this.reloading > 0 ? 0.6 : (this.pumpTime > 0 ? 0.25 : 0);
-    this.vmParts.flash.material.opacity *= 0.6;
+    for (let i = 0; i < 3; i++) {
+      this.vms[i].visible = i === this.weapon;
+      this.vmFlashes[i].material.opacity *= 0.6;
+    }
   },
 
   updateMovement(dt) {

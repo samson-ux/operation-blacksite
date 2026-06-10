@@ -233,6 +233,11 @@ const Game = {
         Missions.bossPackHit(dmg);
         this.stats.hits++;
         UI.hitmarker(false);
+      } else if (bestE.cfg.frontShield &&
+                 new THREE.Vector3(-Math.sin(bestE.yaw), 0, -Math.cos(bestE.yaw)).dot(dir) < 0.2) {
+        // riot plate: shots into his front arc spark off — flank or get behind him
+        AudioSys.play('bossShield');
+        FX.impact(endPoint);
       } else {
         const finalDmg = best.head ? dmg * G.HEADSHOT_MULT : dmg;
         Enemy.damage(bestE, finalDmg, best.head);
