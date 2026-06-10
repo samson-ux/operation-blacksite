@@ -113,21 +113,20 @@ const M4 = {
       o.push(gbox(0, cy - 0.5, cz, w, 1, d, tex, { rep: [Math.round(w / 8), Math.round(d / 8)] }));
       groomWalls(0, cz, w, d, 7, 'bunker', doors, o, cy);
     };
-    // RING 1 — entry hall y=24
-    ring(24, 74, 36, 32, 'floor', [{ side: 'n', off: 8, w: 4, h: 3.5 }]);
+    // RING 1 — entry hall y=24 (stair doors are tall so jumps up the steps clear the lintel)
+    ring(24, 74, 36, 32, 'floor', [{ side: 'n', off: 8, w: 4, h: 4.5 }]);
     o.push(gbox(-8, 25, 70, 4, 2, 4, 'crate')); o.push(gbox(6, 25, 78, 3, 2, 3, 'crate'));
-    // ramp 1: z 58→44, y 24→12
-    o.push(gbox(8, 17.5, 51, 6, 1, 16, 'hazard', { /* ramp as stair steps */ nosolid: true }));
-    for (let i = 0; i < 8; i++) o.push(gbox(8, 23 - i * 1.5 - 0.75, 57 - i * 1.75, 6, 1.5, 2.2, 'concrete'));
+    // ramp 1: z 58→44, y 24→12 — 1 m risers, climbable both ways
+    for (let i = 0; i <= 10; i++) o.push(gbox(8, 23 - i - 0.5, 57.5 - i * 1.3, 6, 1, 2, 'concrete'));
     // RING 2 — y=12
-    ring(12, 28, 44, 34, 'floor', [{ side: 's', off: 8, w: 4, h: 3.5 }, { side: 'n', off: -10, w: 4, h: 3.5 }]);
+    ring(12, 28, 44, 34, 'floor', [{ side: 's', off: 8, w: 4, h: 4.5 }, { side: 'n', off: -10, w: 4, h: 4.5 }]);
     o.push(gbox(-12, 13.2, 30, 5, 2.4, 5, 'crate')); o.push(gbox(10, 13.2, 22, 4, 2.4, 4, 'crate'));
     o.push(gbox(0, 13.2, 34, 3, 2.4, 3, 'metal'));
-    // ramp 2: z 11 → -3, y 12→0
-    for (let i = 0; i < 8; i++) o.push(gbox(-10, 11 - i * 1.5 - 0.75, 9 - i * 1.75, 6, 1.5, 2.2, 'concrete'));
+    // ramp 2: z 11 → -3, y 12→0 — 1 m risers
+    for (let i = 0; i <= 10; i++) o.push(gbox(-10, 11 - i - 0.5, 9.5 - i * 1.3, 6, 1, 2, 'concrete'));
     // RING 3 — security hub y=0 with switch rooms east & west
     ring(0, -22, 52, 36, 'floor', [
-      { side: 's', off: -10, w: 4, h: 3.5 },
+      { side: 's', off: -10, w: 4, h: 4.5 },
       { side: 'e', off: 0, w: 3.5, h: 3 }, { side: 'w', off: 0, w: 3.5, h: 3 },
       { side: 'n', off: 0, w: 6, h: 4 },
     ]);
