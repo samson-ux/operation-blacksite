@@ -34,6 +34,10 @@ const M3 = {
     flat(-12, 14);
     o.push(gbox(2, 2.6, -10, 1.8, 1.2, 1.8, 'crate')); o.push(gbox(-2, 2.6, -15, 1.8, 1.2, 1.8, 'crate'));
     boxcar(-30, 16);                               // car 4
+    // coupler plates bridge every car gap — the middle lane is continuously walkable,
+    // the outer edges over the gaps still drop you
+    for (const z of [87.5, 68.5, 51.5, 32.5, 15.5, -3.5, -20.5, -39.5])
+      o.push(gbox(0, 1.5, z, 3, 1.0, 4.2, 'metal'));
     // engine
     o.push(gbox(0, 1.5, -52, 6, 1.0, 22, 'train'));
     groomWalls(0, -54, 6, 16, 3.6, 'metal', [{ side: 's', off: 0, w: 2.2, h: 2.8 }], o, 2);
