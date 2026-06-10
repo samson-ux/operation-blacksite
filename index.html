@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OPERATION BLACKSITE</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --grn:#6b7d5a; --grn2:#3f4a36; --brn:#5c4f3a; --gry:#8a8d86; --drk:#14160f;
+  --org:#ff8c1a; --red:#c8402a; --wht:#d8dccc;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+body{font-family:'Courier New',Courier,monospace;color:var(--wht);
+  -webkit-font-smoothing:none;cursor:crosshair}
+#gamecanvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  image-rendering:pixelated;image-rendering:crisp-edges}
+.overlay{position:absolute;inset:0;display:none}
+.overlay.show{display:block}
+/* ---------- MENUS ---------- */
+#menu,#results,#pause{background:rgba(10,12,8,.92);text-align:center;z-index:30}
+#menu.show,#results.show,#pause.show{display:flex;flex-direction:column;align-items:center;justify-content:center}
+h1{font-size:42px;letter-spacing:6px;color:var(--org);text-shadow:3px 3px 0 #000,0 0 18px rgba(255,140,26,.35);margin-bottom:4px}
+.sub{color:var(--gry);font-size:13px;letter-spacing:3px;margin-bottom:30px}
+.btn{display:block;width:300px;margin:5px auto;padding:9px;background:var(--grn2);
+  border:2px solid var(--grn);color:var(--wht);font:inherit;font-size:15px;
+  letter-spacing:2px;cursor:pointer;text-transform:uppercase}
+.btn:hover{background:var(--grn);color:#000;border-color:var(--org)}
+.btn.locked{opacity:.35;pointer-events:none}
+.panel{display:none;margin-top:14px;background:#0d0f0a;border:2px solid var(--grn2);padding:16px 24px;min-width:380px;max-height:60vh;overflow:auto}
+.panel.show{display:block}
+.panel h2{color:var(--org);font-size:16px;letter-spacing:3px;margin-bottom:10px}
+.panel table{margin:0 auto;border-collapse:collapse;font-size:13px}
+.panel td,.panel th{padding:3px 12px;text-align:left;color:var(--wht)}
+.panel th{color:var(--gry)}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+.slider-row label{width:140px;text-align:right;color:var(--gry)}
+.slider-row output{width:46px;color:var(--org)}
+input[type=range]{width:160px;accent-color:var(--org)}
+/* ---------- HUD ---------- */
+#hud{z-index:10;pointer-events:none}
+#timer{position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  font-size:22px;color:var(--wht);text-shadow:2px 2px 0 #000;letter-spacing:2px}
+#timer.dim{color:#777}
+#compass{position:absolute;top:38px;left:50%;transform:translateX(-50%);
+  width:260px;height:14px;overflow:hidden;background:rgba(0,0,0,.35);border:1px solid #333}
+#compassstrip{position:absolute;top:0;left:0;white-space:nowrap;font-size:11px;color:var(--gry);line-height:14px}
+#objtext{position:absolute;top:60px;left:50%;transform:translateX(-50%);
+  font-size:13px;color:var(--org);text-shadow:1px 1px 0 #000;text-align:center;letter-spacing:1px}
+#ammo{position:absolute;right:18px;bottom:14px;text-align:right;text-shadow:2px 2px 0 #000}
+#ammo .mag{font-size:30px;color:var(--wht)}
+#ammo .res{font-size:15px;color:var(--gry)}
+#ammo .wname{font-size:11px;color:var(--org);letter-spacing:2px}
+#healthbar{position:absolute;left:18px;bottom:18px;width:120px;height:8px;background:rgba(0,0,0,.5);border:1px solid #444;opacity:0;transition:opacity .3s}
+#healthfill{height:100%;background:var(--red);width:100%}
+#vignette{position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at center,transparent 45%,rgba(180,20,10,.65) 100%)}
+#dmgdir{position:absolute;left:50%;top:50%;width:90px;height:90px;margin:-45px 0 0 -45px;opacity:0}
+#dmgdir::before{content:'';position:absolute;left:50%;top:-16px;margin-left:-12px;
+  border:12px solid transparent;border-bottom:14px solid rgba(220,40,20,.9)}
+#crosshair{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px}
+#crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(220,228,210,.9)}
+#crosshair::before{left:3px;top:0;width:2px;height:8px}
+#crosshair::after{left:0;top:3px;width:8px;height:2px}
+#hitmarker{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;opacity:0;transform:rotate(45deg)}
+#hitmarker i{position:absolute;background:#fff;box-shadow:0 0 4px #000}
+#hitmarker i:nth-child(1){left:8px;top:0;width:2px;height:5px}
+#hitmarker i:nth-child(2){left:8px;top:13px;width:2px;height:5px}
+#hitmarker i:nth-child(3){left:0;top:8px;width:5px;height:2px}
+#hitmarker i:nth-child(4){left:13px;top:8px;width:5px;height:2px}
+#hitmarker.head i{background:var(--org)}
+#interactbar{position:absolute;left:50%;top:58%;transform:translateX(-50%);width:180px;text-align:center;display:none}
+#interactbar .lbl{font-size:12px;color:var(--org);text-shadow:1px 1px 0 #000;margin-bottom:4px}
+#interactbar .bar{height:8px;background:rgba(0,0,0,.6);border:1px solid var(--org)}
+#interactbar .fill{height:100%;background:var(--org);width:0%}
+#subtitles{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
+  max-width:560px;text-align:center;font-size:14px;line-height:1.5;
+  color:var(--wht);text-shadow:2px 2px 0 #000}
+#subtitles .who{color:var(--org)}
+#objmarker{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;display:none;
+  border:2px solid var(--org);transform:rotate(45deg);box-shadow:0 0 6px rgba(255,140,26,.6)}
+#objmarker span{position:absolute;left:50%;top:26px;transform:translateX(-50%) rotate(-45deg);
+  font-size:10px;color:var(--org);text-shadow:1px 1px 0 #000;white-space:nowrap}
+#prompt{position:absolute;left:50%;top:64%;transform:translateX(-50%);
+  font-size:12px;color:var(--gry);text-shadow:1px 1px 0 #000;text-align:center}
+#splitflash{position:absolute;top:100px;left:50%;transform:translateX(-50%);
+  font-size:16px;text-align:center;text-shadow:2px 2px 0 #000;display:none}
+#lockhint{position:absolute;left:18px;top:10px;font-size:11px;color:var(--gry);
+  text-shadow:1px 1px 0 #000;display:none;max-width:220px;line-height:1.5}
+#defendtimer{position:absolute;top:90px;left:50%;transform:translateX(-50%);
+  font-size:26px;color:var(--red);text-shadow:2px 2px 0 #000;display:none}
+#fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 1s;z-index:25}
+#fade.snap{transition:none}
+#deathmsg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  flex-direction:column;background:rgba(60,0,0,.45);z-index:20;text-align:center}
+#deathmsg h2{color:var(--red);font-size:30px;letter-spacing:5px;text-shadow:2px 2px 0 #000}
+#deathmsg p{color:var(--gry);font-size:13px;margin-top:8px}
+.green{color:#5fd35f}.red{color:#e0533a}.orange{color:var(--org)}
+#ranknote{font-size:60px;color:var(--org);text-shadow:4px 4px 0 #000;margin:8px 0}
+kbd{background:#222;border:1px solid #555;padding:1px 5px;font-size:12px}
+</style>
+</head>
+<body>
+<canvas id="gamecanvas"></canvas>
+
+<div id="hud" class="overlay">
+  <div id="vignette"></div>
+  <div id="timer">00:00.0</div>
+  <div id="compass"><div id="compassstrip"></div></div>
+  <div id="objtext"></div>
+  <div id="objmarker"><span></span></div>
+  <div id="crosshair"></div>
+  <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
+  <div id="dmgdir"></div>
+  <div id="ammo"><div class="wname"></div><span class="mag">30</span><span class="res"> / 90</span></div>
+  <div id="healthbar"><div id="healthfill"></div></div>
+  <div id="interactbar"><div class="lbl"></div><div class="bar"><div class="fill"></div></div></div>
+  <div id="subtitles"></div>
+  <div id="prompt"></div>
+  <div id="splitflash"></div>
+  <div id="defendtimer"></div>
+  <div id="lockhint">CURSOR AIM — move cursor to look, hold it at a screen edge to keep turning. Click to capture mouse.</div>
+</div>
+
+<div id="deathmsg"><h2>K.I.A.</h2><p>Restarting from checkpoint — timer is still running<br>[ CLICK TO RESPAWN ]</p></div>
+
+<div id="menu" class="overlay show">
+  <h1>OPERATION BLACKSITE</h1>
+  <div class="sub">1994 // CLASSIFIED // SPEEDRUN-READY</div>
+  <button class="btn" id="btn-new">New Campaign</button>
+  <button class="btn locked" id="btn-levels">Level Select</button>
+  <button class="btn" id="btn-times">Best Times</button>
+  <button class="btn" id="btn-controls">Controls</button>
+  <button class="btn" id="btn-settings">Settings</button>
+  <div class="panel" id="panel-levels"></div>
+  <div class="panel" id="panel-times"></div>
+  <div class="panel" id="panel-controls">
+    <h2>CONTROLS</h2>
+    <table>
+    <tr><td><kbd>W A S D</kbd></td><td>Move</td></tr>
+    <tr><td><kbd>Mouse</kbd></td><td>Look / Fire</td></tr>
+    <tr><td><kbd>Shift</kbd></td><td>Sprint</td></tr>
+    <tr><td><kbd>Space</kbd></td><td>Jump</td></tr>
+    <tr><td><kbd>C</kbd></td><td>Crouch-slide (while sprinting — keeps momentum)</td></tr>
+    <tr><td><kbd>R</kbd></td><td>Reload</td></tr>
+    <tr><td><kbd>1 2 3</kbd> / <kbd>Scroll</kbd></td><td>Swap weapon (cancels reload)</td></tr>
+    <tr><td><kbd>E</kbd></td><td>Interact (hold)</td></tr>
+    <tr><td><kbd>F</kbd></td><td>Skip radio line</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Pause (stops timer)</td></tr>
+    </table>
+  </div>
+  <div class="panel" id="panel-settings">
+    <h2>SETTINGS</h2>
+    <div class="slider-row"><label>Mouse sensitivity</label>
+      <input type="range" id="set-sens" min="2" max="20" step="1"><output id="out-sens"></output></div>
+    <div class="slider-row"><label>Field of view</label>
+      <input type="range" id="set-fov" min="70" max="110" step="5"><output id="out-fov"></output></div>
+    <div class="slider-row"><label>Volume</label>
+      <input type="range" id="set-vol" min="0" max="100" step="5"><output id="out-vol"></output></div>
+  </div>
+</div>
+
+<div id="pause" class="overlay">
+  <h1 style="font-size:28px">PAUSED</h1>
+  <div class="sub">timer stopped</div>
+  <button class="btn" id="btn-resume">Resume</button>
+  <button class="btn" id="btn-restart-cp">Restart from Checkpoint</button>
+  <button class="btn" id="btn-quit">Quit to Title</button>
+</div>
+
+<div id="results" class="overlay">
+  <h1 style="font-size:26px" id="res-title">MISSION COMPLETE</h1>
+  <div id="ranknote"></div>
+  <div class="panel show" id="res-body"></div>
+  <button class="btn" id="btn-res-menu" style="margin-top:16px">Return to Title</button>
+</div>
+
+<div id="fade"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/core.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemy.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/levels2.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
