@@ -275,8 +275,8 @@ const M2 = {
     // signal tower (defend point) — center
     o.push(gbox(0, 2.5, 8, 6, 0.4, 6, 'metal'));         // platform
     o.push(gbox(-2.6, 1.15, 8, 0.8, 2.3, 0.8, 'metal')); o.push(gbox(2.6, 1.15, 8, 0.8, 2.3, 0.8, 'metal'));
-    o.push(gbox(0, 1.25, 11.2, 4, 2.5, 0.7, 'metal'));   // stair block (jump up via crates)
-    o.push(gbox(0, 0.6, 13.4, 3, 1.2, 1.8, 'crate'));
+    o.push(gbox(0, 0.45, 14.5, 4, 0.9, 2, 'metal'));     // tower stairs — two easy 0.9 m steps
+    o.push(gbox(0, 0.9, 12.5, 4, 1.8, 2, 'metal'));
     o.push(gbox(0, 3.3, 5.2, 6, 1.2, 0.4, 'metal')); // railing, north edge of platform
     // depot shed west
     groomWalls(-52, -30, 18, 14, 5, 'brick', [{ side: 'e', off: 0, w: 3.5, h: 3 }], o);

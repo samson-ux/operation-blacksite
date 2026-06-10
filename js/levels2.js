@@ -25,6 +25,7 @@ const M3 = {
     boxcar(78, 16);                                // car 1
     flat(60, 14);                                  // flatbed w/ crates
     o.push(gbox(-1.5, 2.6, 62, 2, 1.2, 2, 'crate')); o.push(gbox(1.5, 2.6, 57, 2, 1.2, 2, 'crate'));
+    o.push(gbox(1.5, 3.8, 57, 1.8, 1.2, 1.8, 'crate')); // stacked — springboard to the boxcar roofs
     boxcar(42, 16);                                // car 2
     flat(24, 14);                                  // MOUNTED GUN flatbed
     o.push(gbox(0, 2.5, 27, 1.2, 1.0, 1.2, 'metal', { tag: 'mgmount' }));
